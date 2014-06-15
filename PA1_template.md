@@ -75,6 +75,11 @@ A. The total number of missing values in the dataset is 2304.
 
 A. The chosen strategy is the mean for the 5-minute interval across all the days in the dataset.
 
+
+```r
+#using the plot1 <- tapply(data$steps, data$interval, mean, na.rm=T), see below
+```
+
 *Create a new dataset that is equal to the original dataset but with the missing data filled in.*
 
 
@@ -91,7 +96,7 @@ dat2 <- tapply(data2$steps, data2$date, sum, na.rm=T)
 hist(dat2, xlab="No. of steps", ylab="No. of days", main="Histogram of total number of steps per day - no missing values")
 ```
 
-![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8.png) 
+![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9.png) 
 
 ```r
 m2 <- mean(dat2)
@@ -131,7 +136,7 @@ Also, the new mean and median are the same - which suggests it's closer to a nor
 
 
 ```r
-#I'm from Poland, so I've changed it to English locale for this chunk.
+#I'm from Poland, so I've changed it to English locale for this chunk
 lct <- Sys.getlocale("LC_TIME"); Sys.setlocale("LC_TIME", "C")
 ```
 
@@ -154,39 +159,20 @@ Sys.setlocale("LC_TIME", lct)
 ```
 
 ```
-## [1] "Polish_Poland.1250"
+## [1] "C"
 ```
 
 *Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).* 
 
 
 ```r
-#Don't like to write if's for small datasets
 data3 <- subset(data2, data2$days == "weekday")
 data2$dt[data2$days == "weekday"] <- tapply(data3$steps, data3$interval, mean)
 
 data4 <- subset(data2, data2$days == "weekend")
 data2$dt[data2$days == "weekend"] <- tapply(data4$steps, data4$interval, mean)
 
-#The plot
 xyplot(data2$dt~data2$interval|data2$days, type="l", layout=c(1,2))
 ```
 
-![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-111.png) 
-
-```r
-#The problems with it 
-
-#First, when calling with tapply - no horizontal line
-xyplot(tapply(data3$steps, data3$interval, mean)~data3$interval, type="l", ylab="dt")
-```
-
-![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-112.png) 
-
-```r
-#When calling with a new variable - horizontal line appears
-data3$dt <- tapply(data3$steps, data3$interval, mean)
-xyplot(data3$dt~data3$interval, type="l")
-```
-
-![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-113.png) 
+![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12.png) 

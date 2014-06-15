@@ -6,9 +6,9 @@
 *Show any code that is needed to load the data (i.e. read.csv()), process/transform the data (if necessary) into a format suitable for your analysis.*
 
 ```{r}
-setwd(choose.dir())
-wd <- getwd()
-data <- read.csv(paste(wd, "/activity.csv", sep=""))
+##setwd(choose.dir())
+##wd <- getwd()
+data <- read.csv(paste("C:/Users/JM/Desktop", "/activity.csv", sep=""))
 ```
 
 ## What is mean total number of steps taken per day?
@@ -65,6 +65,10 @@ A. The total number of missing values in the dataset is `r nna`.
 
 A. The chosen strategy is the mean for the 5-minute interval across all the days in the dataset.
 
+```{r}
+#using the plot1 <- tapply(data$steps, data$interval, mean, na.rm=T), see below
+```
+
 *Create a new dataset that is equal to the original dataset but with the missing data filled in.*
 
 ```{r}
@@ -110,10 +114,10 @@ Also, the new mean and median are the same - which suggests it's closer to a nor
 
 **For this part the weekdays() function may be of some help here. Use the dataset with the filled-in missing values for this part.**
 
-*Create a new factor variable in the dataset with two levels â€“ â€œweekdayâ€ and â€œweekendâ€ indicating whether a given date is a weekday or weekend day.*
+*Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.*
 
 ```{r}
-#I'm from Poland, so I've changed it to English locale for this chunk.
+#I'm from Poland, so I've changed it to English locale for this chunk
 lct <- Sys.getlocale("LC_TIME"); Sys.setlocale("LC_TIME", "C")
 data2$date <- strptime(data2$date, format="%Y-%m-%d")
 
@@ -131,22 +135,11 @@ Sys.setlocale("LC_TIME", lct)
 *Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).* 
 
 ```{r}
-#Don't like to write if's for small datasets
 data3 <- subset(data2, data2$days == "weekday")
 data2$dt[data2$days == "weekday"] <- tapply(data3$steps, data3$interval, mean)
 
 data4 <- subset(data2, data2$days == "weekend")
 data2$dt[data2$days == "weekend"] <- tapply(data4$steps, data4$interval, mean)
 
-#The plot
 xyplot(data2$dt~data2$interval|data2$days, type="l", layout=c(1,2))
-
-#The problems with it 
-
-#First, when calling with tapply - no horizontal line
-xyplot(tapply(data3$steps, data3$interval, mean)~data3$interval, type="l", ylab="dt")
-
-#When calling with a new variable - horizontal line appears
-data3$dt <- tapply(data3$steps, data3$interval, mean)
-xyplot(data3$dt~data3$interval, type="l")
 ```
