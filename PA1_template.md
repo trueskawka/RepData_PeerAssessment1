@@ -7,9 +7,19 @@
 
 
 ```r
-##setwd(choose.dir())
-##wd <- getwd()
-data <- read.csv(paste("C:/Users/JM/Desktop", "/activity.csv", sep=""))
+setwd(choose.dir())
+wd <- getwd()
+data <- read.csv(paste(wd, "/activity.csv", sep=""))
+```
+
+```
+## Warning: cannot open file
+## 'C:/Users/JM/Documents/GitHub/RepData_PeerAssessment1/activity.csv': No
+## such file or directory
+```
+
+```
+## Error: cannot open the connection
 ```
 
 ## What is mean total number of steps taken per day?

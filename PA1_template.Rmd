@@ -6,9 +6,9 @@
 *Show any code that is needed to load the data (i.e. read.csv()), process/transform the data (if necessary) into a format suitable for your analysis.*
 
 ```{r}
-##setwd(choose.dir())
-##wd <- getwd()
-data <- read.csv(paste("C:/Users/JM/Desktop", "/activity.csv", sep=""))
+setwd(choose.dir())
+wd <- getwd()
+data <- read.csv(paste(wd, "/activity.csv", sep=""))
 ```
 
 ## What is mean total number of steps taken per day?
