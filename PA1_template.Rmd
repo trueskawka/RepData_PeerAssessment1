@@ -1,20 +1,152 @@
 # Reproducible Research: Peer Assessment 1
-
+### by trueskawka
 
 ## Loading and preprocessing the data
 
+*Show any code that is needed to load the data (i.e. read.csv()), process/transform the data (if necessary) into a format suitable for your analysis.*
 
+```{r}
+setwd(choose.dir())
+wd <- getwd()
+data <- read.csv(paste(wd, "/activity.csv", sep=""))
+```
 
 ## What is mean total number of steps taken per day?
 
+**For this part of the assignment, you can ignore the missing values in the dataset.**
 
+*Make a histogram of the total number of steps taken each day.*
+
+```{r}
+dat1 <- tapply(data$steps, data$date, sum, na.rm=T)
+hist(dat1, xlab="No. of steps", ylab="No. of days", main="Histogram of total number of steps per day")
+```
+
+*Calculate and report the mean and median total number of steps taken per day.*
+
+```{r}
+m1 <- mean(dat1)
+me1 <- median(dat1)
+```
+
+A. The mean total number of steps taken per day is `r m1` and the median is `r me1`.
 
 ## What is the average daily activity pattern?
 
+*Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis).*
 
+```{r}
+library(lattice)
+plot1 <- tapply(data$steps, data$interval, mean, na.rm=T)
+xyplot(plot1~data$interval, type="l", ylab="Average number of steps", xlab="5-minute intervals")
+```
+
+*Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?*
+
+```{r}
+inter <- names(plot1[plot1 == max(plot1)])
+```
+
+A. The 5-minute interval containing the maximum number of steps on average across all the days in the dataset is `r inter`.
 
 ## Imputing missing values
 
+**Note that there are a number of days/intervals where there are missing values (coded as NA). The presence of missing days may introduce bias into some calculations or summaries of the data.**
 
+*Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs).*
+
+```{r}
+nna <- sum(is.na(data$steps))
+```
+
+A. The total number of missing values in the dataset is `r nna`.
+
+*Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.*
+
+A. The chosen strategy is the mean for the 5-minute interval across all the days in the dataset.
+
+*Create a new dataset that is equal to the original dataset but with the missing data filled in.*
+
+```{r}
+data2 <- data
+data2$steps[is.na(data2$steps)] <- plot1[names(plot1) %in% data2$interval]
+```
+
+*Make a histogram of the total number of steps taken each day and calculate and report the mean and median total number of steps taken per day.*
+
+```{r}
+dat2 <- tapply(data2$steps, data2$date, sum, na.rm=T)
+hist(dat2, xlab="No. of steps", ylab="No. of days", main="Histogram of total number of steps per day - no missing values")
+
+m2 <- mean(dat2)
+me2 <- median(dat2)
+```
+
+A. The mean total number of steps taken per day is in the new dataset `r m2` and the median is `r me2`.
+
+*Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?*
+
+```{r}
+diffm <- m2 - m1
+perm <- m1/m2
+
+diffme <- me2 - me1
+perme <- me1/me2
+```
+
+A. These values differ from the estimates from the first part.
+
+The impact on mean is:
+- difference between means `r diffm`,
+- proportion between means `r perm`.
+
+The impact on median is:
+- difference between medians `r diffme`,
+- proportion between medians `r perme`.
+
+Also, the new mean and median are the same - which suggests it's closer to a normal distribution.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+**For this part the weekdays() function may be of some help here. Use the dataset with the filled-in missing values for this part.**
+
+*Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.*
+
+```{r}
+#I'm from Poland, so I've changed it to English locale for this chunk.
+lct <- Sys.getlocale("LC_TIME"); Sys.setlocale("LC_TIME", "C")
+data2$date <- strptime(data2$date, format="%Y-%m-%d")
+
+weekday <- c("Mon","Tue","Wed","Thu","Fri")
+data2$days[weekdays(data2$date,abbreviate=T) %in% weekday] <- c("weekday")
+
+weekend <- c("Sat","Sun")
+data2$days[weekdays(data2$date,abbreviate=T) %in% weekend] <- c("weekend")
+
+data2$days <- factor(data2$days, levels=c("weekday","weekend"))
+
+Sys.setlocale("LC_TIME", lct)
+```
+
+*Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).* 
+
+```{r}
+#Don't like to write if's for small datasets
+data3 <- subset(data2, data2$days == "weekday")
+data2$dt[data2$days == "weekday"] <- tapply(data3$steps, data3$interval, mean)
+
+data4 <- subset(data2, data2$days == "weekend")
+data2$dt[data2$days == "weekend"] <- tapply(data4$steps, data4$interval, mean)
+
+#The plot
+xyplot(data2$dt~data2$interval|data2$days, type="l", layout=c(1,2))
+
+#The problems with it 
+
+#First, when calling with tapply - no horizontal line
+xyplot(tapply(data3$steps, data3$interval, mean)~data3$interval, type="l", ylab="dt")
+
+#When calling with a new variable - horizontal line appears
+data3$dt <- tapply(data3$steps, data3$interval, mean)
+xyplot(data3$dt~data3$interval, type="l")
+```
